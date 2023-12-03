@@ -1,17 +1,18 @@
-﻿using spoofy.domain.Conta;
+﻿using spoofy.domain.Conta.ValueObject;
+using spoofy.domain.Streaming;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spoofy.domain.Streaming
+namespace spoofy.domain.Conta.Aggregates
 {
     public class Usuario
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string CPF { get; set; }
+        public string Nome { get; set; }
+        public CPF CPF { get; set; }
         public List<Cartao> Cartoes { get; set; }
         public List<Assinatura> Assinaturas { get; set; }
         public List<Playlist> Playlists { get; set; }
@@ -19,27 +20,28 @@ namespace spoofy.domain.Streaming
 
         public Usuario()
         {
-            this.Playlists = new List<Playlist>();
-            this.Assinaturas = new List<Assinatura>();
-            this.Favoritos = new List<Favoritos>();
-            this.Cartoes = new List<Cartao>();
+            Playlists = new List<Playlist>();
+            Assinaturas = new List<Assinatura>();
+            Favoritos = new List<Favoritos>();
+            Cartoes = new List<Cartao>();
+            Assinaturas = new List<Assinatura>();
         }
 
         public void Criar(string nome, string cpf, Plano plano, Cartao cartao)
         {
-            this.Name = nome;
-            this.CPF = cpf;
+            Nome = nome;
+            CPF = new CPF(cpf);
 
-            this.AssinarPlano(plano, cartao);
+            AssinarPlano(plano, cartao);
 
-            this.AdicionarCartao(cartao);
+            AdicionarCartao(cartao);
 
-            this.CriarPlaylist();
+            CriarPlaylist();
         }
 
         private void CriarPlaylist(string nome = "Favoritas")
         {
-            this.Playlists.Add(new Playlist()
+            Playlists.Add(new Playlist()
             {
                 Id = Guid.NewGuid(),
                 Nome = nome,
@@ -50,7 +52,7 @@ namespace spoofy.domain.Streaming
 
         private void AdicionarCartao(Cartao cartao)
         {
-            this.Cartoes.Add(cartao);
+            Cartoes.Add(cartao);
         }
 
         private void AssinarPlano(Plano plano, Cartao cartao)
@@ -60,14 +62,14 @@ namespace spoofy.domain.Streaming
             cartao.AutorizarCompra(plano.Valor, DateTime.Now, plano.Nome);
 
             //Caso tenha uma assinatura ativa, desativa ela
-            if (this.Assinaturas.Count > 0 && this.Assinaturas.Any(x => x.Ativo))
+            if (Assinaturas.Count > 0 && Assinaturas.Any(x => x.Ativo))
             {
-                var planoAtivo = this.Assinaturas.FirstOrDefault(x => x.Ativo);
+                var planoAtivo = Assinaturas.FirstOrDefault(x => x.Ativo);
                 planoAtivo.Ativo = false;
             }
 
             //Adiciona uma nova assinatura
-            this.Assinaturas.Add(new Assinatura()
+            Assinaturas.Add(new Assinatura()
             {
                 Ativo = true,
                 DtAssinatura = DateTime.Now,

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spoofy.domain.Conta
+namespace spoofy.domain.Conta.Aggregates
 {
     public class Cartao
     {
@@ -21,10 +21,14 @@ namespace spoofy.domain.Conta
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{MM/yyyy}")]
         public DateTime Validade { get; set; }
-        public Boolean Ativo { get; set; }
-        public List<Compra> compras { get; set; }
+        public bool Ativo { get; set; }
+        public List<Compra> Compras { get; set; }
 
-        private Boolean EstaAtivo(Compra compra)
+        public Cartao()
+        {
+            Compras = new List<Compra>();
+        }
+        private bool EstaAtivo(Compra compra)
         {
             if (!Ativo)
             {
@@ -33,7 +37,7 @@ namespace spoofy.domain.Conta
             }
             return true;
         }
-        private Boolean DentroDoLimite(Compra compra, decimal valor)
+        private bool DentroDoLimite(Compra compra, decimal valor)
         {
             if (LimiteAtual < valor)
             {
@@ -42,6 +46,7 @@ namespace spoofy.domain.Conta
             }
             return true;
         }
+
         public Compra AutorizarCompra(decimal valor, DateTime dataHora, string comerciante)
         {
 
@@ -56,23 +61,28 @@ namespace spoofy.domain.Conta
             if (!EstaAtivo(compra)) return compra;
             if (!DentroDoLimite(compra, valor)) return compra;
 
-            var ultimaCompra = compras[compras.Count() - 1];
-            var penultimaCompra = compras[compras.Count() - 2];
-
-
-            if ((dataHora.Subtract(ultimaCompra.DataHora) - ultimaCompra.DataHora.Subtract(penultimaCompra.DataHora)).TotalSeconds < 120)
+            if (Compras.Count >= 1)
             {
-                compra.Status = "RECUSADA";
-                return compra;
-            }
-            else if ((ultimaCompra.Valor == valor) && (ultimaCompra.Comerciante == comerciante) && (dataHora.Subtract(ultimaCompra.DataHora).TotalSeconds < 120))
-            {
-                compra.Status = "RECUSADA";
-                return compra;
+                var ultimaCompra = Compras[-1];
+                if (Compras.Count >= 2)
+                {
+                    var penultimaCompra = Compras[-2];
+                    if ((dataHora.Subtract(ultimaCompra.DataHora) - ultimaCompra.DataHora.Subtract(penultimaCompra.DataHora)).TotalSeconds < 120)
+                    {
+                        compra.Status = "RECUSADA";
+                        return compra;
+                    }
+                }
+                else if (ultimaCompra.Valor == valor && ultimaCompra.Comerciante == comerciante && dataHora.Subtract(ultimaCompra.DataHora).TotalSeconds < 120)
+                {
+                    compra.Status = "RECUSADA";
+                    return compra;
+                }
             }
 
             compra.Status = "APROVADA";
             LimiteAtual -= valor;
+            Compras.Add(compra);
             return compra;
         }
     }

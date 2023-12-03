@@ -1,21 +1,20 @@
-﻿using spoofy.domain.Conta;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spoofy.application.Conta.Dto
+namespace spoofy.domain.Conta.Aggregates
 {
-    public class CriarContaDTO
+    public class Conta
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [ForeignKey("Pessoa")]
         public Guid pessoaID { get; set; }
+        public virtual Usuario usuario { get; set; }
         public string agencia { get; set; }
         public string conta { get; set; }
     }
-
-    public class Criar
 }
+

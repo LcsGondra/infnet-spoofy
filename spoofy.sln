@@ -5,13 +5,15 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "spoofy.core", "spoofy.core\spoofy.core.csproj", "{4F825C25-7A43-4BF6-AA45-82BC6A5906F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spoofy.domain", "spoofy.domain\spoofy.domain.csproj", "{F12A457F-BE18-4A20-8E6C-9E7155AA7886}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "spoofy.domain", "spoofy.domain\spoofy.domain.csproj", "{F12A457F-BE18-4A20-8E6C-9E7155AA7886}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spoofy.Tests", "spoofy.Tests\spoofy.Tests.csproj", "{00808960-4B89-435E-864D-9094FE61BD19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "spoofy.Tests", "spoofy.Tests\spoofy.Tests.csproj", "{00808960-4B89-435E-864D-9094FE61BD19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spoofy.application", "spoofy.application\spoofy.application.csproj", "{157459F9-A8F6-49D8-B515-A7439456BE67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "spoofy.application", "spoofy.application\spoofy.application.csproj", "{157459F9-A8F6-49D8-B515-A7439456BE67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spoofy.repository", "spoofy.repository\spoofy.repository.csproj", "{67D71B2E-3B83-44DF-BE75-907D4033679A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "spoofy.repository", "spoofy.repository\spoofy.repository.csproj", "{67D71B2E-3B83-44DF-BE75-907D4033679A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spoofy.API", "spoofy.API\spoofy.API.csproj", "{D9D6F829-C008-4F0C-98E1-C1582F6AA685}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{67D71B2E-3B83-44DF-BE75-907D4033679A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67D71B2E-3B83-44DF-BE75-907D4033679A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67D71B2E-3B83-44DF-BE75-907D4033679A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9D6F829-C008-4F0C-98E1-C1582F6AA685}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9D6F829-C008-4F0C-98E1-C1582F6AA685}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9D6F829-C008-4F0C-98E1-C1582F6AA685}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9D6F829-C008-4F0C-98E1-C1582F6AA685}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

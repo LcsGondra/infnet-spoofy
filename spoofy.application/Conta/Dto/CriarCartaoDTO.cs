@@ -1,4 +1,4 @@
-﻿using spoofy.domain.Conta;
+﻿using spoofy.domain.Conta.Aggregates;
 using System;
 using System.Collections.Generic;
 using System.Linq;

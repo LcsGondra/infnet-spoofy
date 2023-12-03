@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\spoofy.core\spoofy.core.csproj" />
     <ProjectReference Include="..\spoofy.domain\spoofy.domain.csproj" />
     <ProjectReference Include="..\spoofy.repository\spoofy.repository.csproj" />
   </ItemGroup>

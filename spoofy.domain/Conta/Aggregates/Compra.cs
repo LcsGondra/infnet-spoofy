@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spoofy.domain.Conta
+namespace spoofy.domain.Conta.Aggregates
 {
     public class Compra
     {
@@ -18,4 +18,5 @@ namespace spoofy.domain.Conta
         public string Comerciante { get; set; }
         public string Status { get; set; }
     }
+
 }
