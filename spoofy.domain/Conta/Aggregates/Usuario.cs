@@ -22,7 +22,6 @@ namespace spoofy.domain.Conta.Aggregates
         {
             Playlists = new List<Playlist>();
             Assinaturas = new List<Assinatura>();
-            Favoritos = new List<Favoritos>();
             Cartoes = new List<Cartao>();
             Assinaturas = new List<Assinatura>();
         }
@@ -39,16 +38,7 @@ namespace spoofy.domain.Conta.Aggregates
             CriarPlaylist();
         }
 
-        private void CriarPlaylist(string nome = "Favoritas")
-        {
-            Playlists.Add(new Playlist()
-            {
-                Id = Guid.NewGuid(),
-                Nome = nome,
-                Publica = false,
-                Usuario = this
-            });
-        }
+
 
         private void AdicionarCartao(Cartao cartao)
         {
@@ -76,6 +66,20 @@ namespace spoofy.domain.Conta.Aggregates
                 Plano = plano,
                 Id = Guid.NewGuid()
             });
+        }
+        public void CriarPlaylist(string nome = "Favoritas")
+        {
+            Playlists.Add(new Playlist()
+            {
+                Id = Guid.NewGuid(),
+                Nome = nome,
+                Publica = false,
+                Usuario = this
+            });
+        }
+        public void Favoritar(Musica musica)
+        {
+            Playlists.FirstOrDefault(x => x.Nome == "Favoritas").Musicas.Add(musica);
         }
     }
 }

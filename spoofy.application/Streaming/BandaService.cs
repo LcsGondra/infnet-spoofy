@@ -101,5 +101,10 @@ namespace spoofy.application.Streaming
             return dto;
 
         }
+
+        public Musica ObterMusica(Guid idMusica)
+        {
+            return Repository.ObterMusica(idMusica);
+        }
     }
 }

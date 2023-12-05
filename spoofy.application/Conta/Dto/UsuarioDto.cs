@@ -1,4 +1,7 @@
-﻿using spoofy.domain.Conta;
+﻿using spoofy.application.Streaming.Dto;
+using spoofy.domain.Conta;
+using spoofy.domain.Conta.Aggregates;
+using spoofy.domain.Streaming;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +22,7 @@ namespace spoofy.application.Conta.Dto
         [Required]
         public Guid PlanoId { get; set; }
         public CartaoDto Cartao { get; set; }
+        public List<PlaylistDto> Playlists { get; set; }
     }
 
     public class CartaoDto
@@ -29,5 +33,13 @@ namespace spoofy.application.Conta.Dto
         public Decimal LimiteAtual { get; set; }
         [Required]
         public Boolean Ativo { get; set; }
+    }
+
+    public class PlaylistDto
+    {
+        public Guid Id { get; set; }
+        public String Nome { get; set; }
+        public Boolean Publica { get; set; }
+        public List<MusicaDto> Musicas { get; set; }
     }
 }

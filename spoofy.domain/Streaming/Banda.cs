@@ -11,6 +11,7 @@ namespace spoofy.domain.Streaming
         public Guid Id { get; set; }
         public String Nome { get; set; }
         public String Descricao { get; set; }
+        public String Genero { get; set; }
         public List<Album> Albums { get; set; }
 
         public Banda()

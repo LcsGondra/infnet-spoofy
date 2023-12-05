@@ -12,5 +12,6 @@ namespace spoofy.domain.Streaming
         public string Nome { get; set; }
         public int Duracao { get; set; }
         public Album Album { get; set; }
+        public List<Playlist> Playlists { get; set; }
     }
 }

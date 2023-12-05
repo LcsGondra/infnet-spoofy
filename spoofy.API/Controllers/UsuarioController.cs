@@ -40,6 +40,14 @@ namespace spoofy.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{id}/Favoritar")]
+        public IActionResult FavoritarMusica(Guid id, FavoritarDto dto)
+        {
+            _service.FavoritarMusica(id, dto.idMusica);
+
+            return Ok();
+        }
+
         //[HttpPut("{id}")]
         //public IActionResult UpdateUsuario(Guid id, UsuarioDto dto)
         //{

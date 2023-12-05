@@ -23,10 +23,11 @@ namespace spoofy.repository.Conta
             UsuarioRepository.usuarios.Add(usuario);
         }
 
-        public void UpdateUsuario(Guid id, String nome)
+        public void Update(Usuario usuario)
         {
-            Usuario usuario = usuarios.FirstOrDefault(x => x.Id == id);
-            usuario.Nome = nome;
+            Usuario usuarioOld = this.ObterUsuario(usuario.Id);
+            UsuarioRepository.usuarios.Remove(usuarioOld);
+            UsuarioRepository.usuarios.Add(usuario);
         }
     }
 }
