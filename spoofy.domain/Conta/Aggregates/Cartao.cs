@@ -60,25 +60,30 @@ namespace spoofy.domain.Conta.Aggregates
             //ta cartao ta ativo? dentro do limite? compra ta repitida?
             if (!EstaAtivo(compra)) return compra;
             if (!DentroDoLimite(compra, valor)) return compra;
-
-            if (Compras.Count >= 1)
+            
+            if(Compras.Count >= 1)
             {
-                var ultimaCompra = Compras[-1];
-                if (Compras.Count >= 2)
+                var ultimaCompra = Compras[Compras.Count() - 1];
+
+                if(Compras.Count >= 2)
                 {
-                    var penultimaCompra = Compras[-2];
+                    var penultimaCompra = Compras[Compras.Count() - 2];
+
+
                     if ((dataHora.Subtract(ultimaCompra.DataHora) - ultimaCompra.DataHora.Subtract(penultimaCompra.DataHora)).TotalSeconds < 120)
                     {
                         compra.Status = "RECUSADA";
                         return compra;
                     }
-                }
-                else if (ultimaCompra.Valor == valor && ultimaCompra.Comerciante == comerciante && dataHora.Subtract(ultimaCompra.DataHora).TotalSeconds < 120)
+
+                }else if ((ultimaCompra.Valor == valor) && (ultimaCompra.Comerciante == comerciante) && (dataHora.Subtract(ultimaCompra.DataHora).TotalSeconds < 120))
                 {
                     compra.Status = "RECUSADA";
                     return compra;
                 }
+
             }
+
 
             compra.Status = "APROVADA";
             LimiteAtual -= valor;

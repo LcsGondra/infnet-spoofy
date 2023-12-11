@@ -1,5 +1,4 @@
 ﻿using spoofy.domain.Conta.ValueObject;
-using spoofy.domain.Streaming;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +15,15 @@ namespace spoofy.domain.Conta.Aggregates
         public List<Cartao> Cartoes { get; set; }
         public List<Assinatura> Assinaturas { get; set; }
         public List<Playlist> Playlists { get; set; }
-        public List<Favoritos> Favoritos { get; set; }
 
         public Usuario()
         {
             Playlists = new List<Playlist>();
-            Assinaturas = new List<Assinatura>();
             Cartoes = new List<Cartao>();
             Assinaturas = new List<Assinatura>();
         }
 
-        public void Criar(string nome, string cpf, Plano plano, Cartao cartao)
+        public void Criar(string nome, string cpf, Plano plano, Cartao cartao, Playlist playlist)
         {
             Nome = nome;
             CPF = new CPF(cpf);
@@ -35,17 +32,18 @@ namespace spoofy.domain.Conta.Aggregates
 
             AdicionarCartao(cartao);
 
-            CriarPlaylist();
+            CriarPlaylist(playlist);
         }
 
 
 
         private void AdicionarCartao(Cartao cartao)
         {
+            cartao.Id = Guid.NewGuid();
             Cartoes.Add(cartao);
         }
 
-        private void AssinarPlano(Plano plano, Cartao cartao)
+        public void AssinarPlano(Plano plano, Cartao cartao)
         {
 
             //Debitar o valor do plano no cartão
@@ -67,19 +65,31 @@ namespace spoofy.domain.Conta.Aggregates
                 Id = Guid.NewGuid()
             });
         }
-        public void CriarPlaylist(string nome = "Favoritas")
+        public void CriarPlaylist(Playlist playlist)
         {
             Playlists.Add(new Playlist()
-            {
-                Id = Guid.NewGuid(),
-                Nome = nome,
-                Publica = false,
-                Usuario = this
+            { 
+                Id = playlist.Id,
+                Nome = playlist.Nome,
+                Publica = playlist.Publica,
+                Usuario = this,
+                Musicas = playlist.Musicas,
             });
         }
         public void Favoritar(Musica musica)
         {
             Playlists.FirstOrDefault(x => x.Nome == "Favoritas").Musicas.Add(musica);
         }
+
+        public void AddtoPlaylist(Musica musica, Guid id)
+        {
+            Playlists.FirstOrDefault(x => x.Id == id).Musicas.Add(musica);
+        }
+        public void MudarNome(String nome)
+        {
+            Nome = nome;
+        }
+
+        
     }
 }

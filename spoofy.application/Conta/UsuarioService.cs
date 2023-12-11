@@ -1,15 +1,16 @@
 ﻿using spoofy.application.Conta.Dto;
-using spoofy.application.Streaming;
-using spoofy.application.Streaming.Dto;
+using spoofy.application.Conta;
+using spoofy.application.Conta.Dto;
 using spoofy.core;
 using spoofy.domain.Conta.Aggregates;
 using spoofy.repository.Conta;
-using spoofy.repository.Streaming;
+using spoofy.repository.Conta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 namespace spoofy.application.Conta
 {
@@ -17,11 +18,10 @@ namespace spoofy.application.Conta
     {
         private PlanoRepository planoRepository =  new PlanoRepository();
         private UsuarioRepository usuarioRepository = new UsuarioRepository();
-        private BandaService bandaService = new BandaService();
-        public UsuarioDto CriarConta(UsuarioDto conta)
+        private BandaRepository bandaRepository = new BandaRepository();
+        public async Task<UsuarioDto> CriarConta(UsuarioDto conta)
         {
-            //todo: verificar e pegar plano
-            Plano plano = this.planoRepository.PlanoPorId(conta.PlanoId);
+            Plano plano = await this.planoRepository.PlanoPorId(conta.PlanoId);
 
             if (plano == null)
             {
@@ -31,7 +31,10 @@ namespace spoofy.application.Conta
                     ErrorName = nameof(CriarConta)
                 }).ValidateAndThrow();
             }
-
+            Playlist playlist = new Playlist();
+            playlist.Nome = "Favoritas";
+            playlist.Publica = false;
+            playlist.Id = Guid.NewGuid();
             Cartao cartao = new Cartao();
             cartao.Ativo = conta.Cartao.Ativo;
             cartao.Numero = conta.Cartao.Numero;
@@ -39,7 +42,7 @@ namespace spoofy.application.Conta
 
             //criar usuario
             Usuario usuario = new Usuario();
-            usuario.Criar(conta.Nome, conta.CPF, plano, cartao);
+            usuario.Criar(conta.Nome, conta.CPF, plano, cartao, playlist);
 
             //gravar usuario na base
             this.usuarioRepository.SalvarUsuario(usuario);
@@ -61,6 +64,7 @@ namespace spoofy.application.Conta
                 Id = usuario.Id,
                 Cartao = new CartaoDto()
                 {
+                    Id = usuario.Cartoes.FirstOrDefault().Id,
                     Ativo = usuario.Cartoes.FirstOrDefault().Ativo,
                     LimiteAtual = usuario.Cartoes.FirstOrDefault().LimiteAtual,
                     Numero = "xxxx-xxxx-xxxx-xxxx"
@@ -68,6 +72,8 @@ namespace spoofy.application.Conta
                 CPF = usuario.CPF.NumeroFormatado(),
                 Nome = usuario.Nome,
                 Playlists = new List<PlaylistDto>(),
+                Assinaturas = new List<AssinaturaDto>(),
+                PlanoId = usuario.Assinaturas.FirstOrDefault(x => x.Ativo == true).Plano.Id
             };
 
             foreach (var item in usuario.Playlists)
@@ -92,10 +98,28 @@ namespace spoofy.application.Conta
 
                 result.Playlists.Add(playList);
             }
+
+            foreach (var item in usuario.Assinaturas)
+            {
+                var assinatura = new AssinaturaDto()
+                {
+                    Id = item.Id,
+                    Ativo = item.Ativo,
+                    DtAssinatura = item.DtAssinatura,
+                    Plano = new PlanoDto()
+                    {
+                        Id = item.Plano.Id,
+                        Nome = item.Plano.Nome,
+                        Descricao = item.Plano.Descricao,
+                        Valor = item.Plano.Valor
+                    }
+                };
+                result.Assinaturas.Add(assinatura);
+            }
             return result;
         }
 
-        public void FavoritarMusica(Guid id, Guid idMusica)
+        public async Task FavoritarMusica(Guid id, Guid idMusica)
         {
             var usuario = this.usuarioRepository.ObterUsuario(id);
 
@@ -108,7 +132,7 @@ namespace spoofy.application.Conta
                 });
             }
             
-            var musica = bandaService.ObterMusica(idMusica);
+            var musica = await bandaRepository.ObterMusica(idMusica);
 
             if (musica == null)
             {
@@ -124,29 +148,120 @@ namespace spoofy.application.Conta
             usuarioRepository.Update(usuario);
 
         }
+        public async Task AdicionarMusica(Guid id, Guid idMusica, Guid idPlaylist)
+        {
+            var usuario = this.usuarioRepository.ObterUsuario(id);
 
-        //public UsuarioDto UpdateUsuario(Guid id)
-        //{
-        //    var usuario = this.usuarioRepository.ObterUsuario(id);
+            if (usuario == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Nao encontrei usuario",
+                    ErrorName = nameof(AdicionarMusica)
+                });
+            }
 
-        //    if (usuario == null)
-        //        return null;
+            var musica = await bandaRepository.ObterMusica(idMusica);
 
-        //    UsuarioDto result = new UsuarioDto()
-        //    {
-        //        Id = usuario.Id,
-        //        Cartao = new CartaoDto()
-        //        {
-        //            Ativo = usuario.Cartoes.FirstOrDefault().Ativo,
-        //            LimiteAtual = usuario.Cartoes.FirstOrDefault().LimiteAtual,
-        //            Numero = "xxxx-xxxx-xxxx-xxxx"
-        //        },
-        //        CPF = usuario.CPF.NumeroFormatado(),
-        //        Nome = usuario.Nome,
-        //    };
+            if (musica == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Nao encontrei musica",
+                    ErrorName = nameof(AdicionarMusica)
+                });
+            }
 
-        //    usuarioRepository.SalvarUsuario(usuario);
-        //    return result;
-        //}
+            usuario.AddtoPlaylist(musica, idPlaylist);
+
+            usuarioRepository.Update(usuario);
+
+        }
+        public async Task NovaPlaylist(Guid id, PlaylistDto dto)
+        {
+            var usuario = this.usuarioRepository.ObterUsuario(id);
+
+            if (usuario == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Não encontrei o usuário",
+                    ErrorName = nameof(NovaPlaylist)
+                });
+            }
+
+            var playList = new Playlist()
+            {
+                Id = Guid.NewGuid(),
+                Nome = dto.Nome,
+                Publica = dto.Publica
+            };
+
+            usuario.CriarPlaylist(playList);
+
+            foreach (var musica in dto.Musicas)
+            {
+
+               var toAdd = await bandaRepository.ObterMusica(musica.Id);
+               usuario.AddtoPlaylist(toAdd, playList.Id);
+
+            }
+
+            usuarioRepository.Update(usuario);
+        }
+
+        public void UpdateNomeUsuario(Guid id, NomeDto dto)
+        {
+            var usuario = this.usuarioRepository.ObterUsuario(id);
+
+            if (usuario == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Não encontrei o usuário",
+                    ErrorName = nameof(FavoritarMusica)
+                });
+            }
+
+            usuario.MudarNome(dto.Nome);
+            usuarioRepository.Update(usuario);
+        }
+
+        public async Task NovaAssinatura(Guid id, CompraDto dto)
+        {
+            var usuario = usuarioRepository.ObterUsuario(id);
+
+            if (usuario == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Não encontrei o usuário",
+                    ErrorName = nameof(NovaAssinatura)
+                });
+            }
+            var plano = await planoRepository.PlanoPorId(dto.IdPlano);
+
+            if (plano == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Não encontrei o plano",
+                    ErrorName = nameof(NovaAssinatura)
+                });
+            }
+
+            var cartao = usuario.Cartoes.FirstOrDefault(c => c.Id == dto.IdCartao);
+            if (cartao == null)
+            {
+                throw new BusinessException(new BusinessValidation()
+                {
+                    ErrorMessage = "Não encontrei o cartao",
+                    ErrorName = nameof(NovaAssinatura)
+                });
+            }
+
+            usuario.AssinarPlano(plano, cartao);
+            usuarioRepository.Update(usuario);
+        }
     }
 }

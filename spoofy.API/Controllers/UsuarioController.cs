@@ -19,14 +19,14 @@ namespace spoofy.API.Controllers
 
 
         [HttpPost]
-        public IActionResult CriarConta(UsuarioDto dto)
+        public async Task<IActionResult> CriarConta(UsuarioDto dto)
         {
             if (ModelState.IsValid == false)
                 return BadRequest(ModelState);
 
-            this._service.CriarConta(dto);
+            await _service.CriarConta(dto);
 
-            return Created($"/usuario/{dto.Id}", dto);
+            return Created($"/Usuario/{dto.Id}", dto);
         }
 
         [HttpGet("{id}")]
@@ -41,24 +41,54 @@ namespace spoofy.API.Controllers
         }
 
         [HttpPost("{id}/Favoritar")]
-        public IActionResult FavoritarMusica(Guid id, FavoritarDto dto)
+        public async Task<IActionResult> FavoritarMusica(Guid id, FavoritarDto dto)
         {
-            _service.FavoritarMusica(id, dto.idMusica);
+            await _service.FavoritarMusica(id, dto.idMusica);
 
             return Ok();
         }
 
-        //[HttpPut("{id}")]
-        //public IActionResult UpdateUsuario(Guid id, UsuarioDto dto)
-        //{
-        //    var result = this._service.ObterUsuario(id);
+        [HttpPut("{id}/updatename")]
+        public IActionResult UpdateUsuario(Guid id, NomeDto dto)
+        {
+            var result = this._service.ObterUsuario(id);
 
-        //    if (result == null)
-        //        return NotFound();
+            if (result == null)
+                return NotFound();
 
-        //    _service.UpdateUsuario(id, dto);
-        //    return Ok(result);
-        //}
+            _service.UpdateNomeUsuario(id, dto);
+            return Created($"/Usuario/{id}", result);
+
+        }
+
+        [HttpPost("{id}/NovaPlaylist")]
+        public async Task<IActionResult> NovaPlaylist(Guid id, PlaylistDto dto)
+        {
+            var result = this._service.ObterUsuario(id);
+
+            if (result == null)
+                return NotFound();
+
+            await _service.NovaPlaylist(id, dto);
+            return Created($"/Usuario/{dto.Id}/NovaPlaylist", dto);
+        }
+
+        [HttpPost("{id}/Playlist/{idPlaylist}/AdicionarMusica")]
+        public async Task<IActionResult> AdicionarMusica(Guid id, Guid idMusica, Guid idPlaylist)
+        {
+            await _service.AdicionarMusica(id, idMusica, idPlaylist);
+            return Ok();
+
+        }
+
+        [HttpPost("{id}/NovaAssinatura")]
+        public async Task<IActionResult> NovaAssinatura(Guid id, CompraDto dto)
+        {
+
+            await _service.NovaAssinatura(id, dto);
+
+            return Ok();
+        }
 
     }
 }

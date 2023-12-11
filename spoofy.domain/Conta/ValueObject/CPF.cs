@@ -34,7 +34,7 @@ namespace spoofy.domain.Conta.ValueObject
 
         public String NumeroFormatado()
         {
-            return Convert.ToInt64(this.Numero).ToString("###.###.###-##");
+            return Convert.ToUInt64(Numero).ToString(@"000\.000\.000\-00");
         }
 
         public bool IsValido()
