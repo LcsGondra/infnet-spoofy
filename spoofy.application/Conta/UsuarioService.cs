@@ -194,18 +194,21 @@ namespace spoofy.application.Conta
             {
                 Id = Guid.NewGuid(),
                 Nome = dto.Nome,
-                Publica = dto.Publica
+                Publica = dto.Publica,
+                Musicas = new List<Musica>()
             };
 
-            usuario.CriarPlaylist(playList);
-
-            foreach (var musica in dto.Musicas)
+            foreach (var musicas in dto.Musicas)
             {
-
-               var toAdd = await bandaRepository.ObterMusica(musica.Id);
-               usuario.AddtoPlaylist(toAdd, playList.Id);
-
+                playList.Musicas.Add(new Musica()
+                {
+                    Duracao = musicas.Duracao,
+                    Id = musicas.Id,
+                    Nome = musicas.Nome
+                });
             }
+        
+            usuario.CriarPlaylist(playList);
 
             usuarioRepository.Update(usuario);
         }
